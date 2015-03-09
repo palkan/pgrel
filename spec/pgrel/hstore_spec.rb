@@ -46,12 +46,12 @@ describe Hstore do
     expect(records.size).to eq 2
   end
 
-  it '#contain' do
-    records = Hstore.where.store(:tags).contain(f: true)
+  it '#contains' do
+    records = Hstore.where.store(:tags).contains(f: true)
     expect(records.size).to eq 2
 
-    records = Hstore.where.store(:tags).contain(a: 2, c: 'x')
-    expect(records.size).to eq
+    records = Hstore.where.store(:tags).contains(a: 2, c: 'x')
+    expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
   end
 

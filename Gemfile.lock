@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     pgrel (0.0.1)
-      rails (>= 4.0)
+      rails
 
 PATH
   remote: ../arel

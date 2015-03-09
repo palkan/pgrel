@@ -18,7 +18,7 @@ module ActiveRecord
         update_scope "#{@store_name} ?| ARRAY[:keys]", keys: keys.map(&:to_s)
       end
 
-      def contain(opts)
+      def contains(opts)
         update_scope "#{@store_name} @> :data", data: @scope.table.type_cast_for_database(@store_name, opts)
       end
 

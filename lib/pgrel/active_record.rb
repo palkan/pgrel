@@ -1,2 +1,2 @@
 require 'active_record'
-require 'pgrel/active_record/relation/query_methods'
+require 'pgrel/active_record/query_methods'

@@ -3,9 +3,9 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 ENV["RAILS_ENV"] ||= 'test'
 
-unless ENV['COVER'].empty?
+if ENV['COVER']
   require 'simplecov'
-  SimpleCov.root File.join(File.dirname(__FILE__), '..', 'lib')
+  SimpleCov.root File.join(File.dirname(__FILE__), '..')
   SimpleCov.start
 end
 

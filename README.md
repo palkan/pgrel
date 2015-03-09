@@ -2,4 +2,6 @@
 
 ## Pgrel
 
+**Rails 5**
+
 ActiveRecord extension for querying hstore and jsonb.

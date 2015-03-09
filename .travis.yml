@@ -1,21 +1,7 @@
 language: ruby
 cache: bundler
-rvm:
-  - 2.2
-
-gemfile:
-  - Gemfile
 
 matrix:
   include:
-    - rvm: 2.2
-      gemfile: gemfiles/rails40.gemfile
-
-    - rvm: 2.2
-      gemfile: gemfiles/rails41.gemfile
-
-    - rvm: 2.2
-      gemfile: gemfiles/rails42.gemfile
-
-    - rvm: 2.2
+    - rvm: 2.2.1
       gemfile: gemfiles/rails5.gemfile

@@ -23,6 +23,7 @@
 .settings
 .tmproj
 Thumbs.db
+coverage/
 
 .bundle/
 log/*.log

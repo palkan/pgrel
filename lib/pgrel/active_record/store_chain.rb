@@ -36,9 +36,9 @@ module ActiveRecord
         update_scope "#{@store_name} <@ #{type_cast(opts)}"
       end
 
-      protected
-
       if RAILS_5
+        protected
+
         def update_scope(*opts)
           where_clause = @scope.send(:where_clause_factory).build(opts, {})
           @scope.where_clause += where_clause
@@ -50,7 +50,23 @@ module ActiveRecord
             @scope.table.type_cast_for_database(@store_name, value)
           )
         end
+
+        def where_with_prefix(prefix, opts)
+          where_clause = @scope.send(:where_clause_factory).build(opts, {})
+          predicates = where_clause.ast.children.map do |rel|
+            rel.left = to_sql_literal(prefix, rel.left)
+            rel
+          end
+          where_clause = ActiveRecord::Relation::WhereClause.new(
+            predicates,
+            where_clause.binds
+          )
+          @scope.where_clause += where_clause
+          @scope
+        end
       else
+        protected
+
         def update_scope(*opts)
           @scope.where_values += @scope.send(:build_where, opts)
           @scope
@@ -61,6 +77,15 @@ module ActiveRecord
             value,
             @scope.klass.columns_hash[@store_name]
           )
+        end
+
+        def where_with_prefix(prefix, opts)
+          where_value = @scope.send(:build_where, opts).map do |rel|
+            rel.left = to_sql_literal(prefix, rel.left)
+            rel
+          end
+          @scope.where_values += where_value
+          @scope
         end
       end
     end

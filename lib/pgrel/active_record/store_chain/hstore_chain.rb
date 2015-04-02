@@ -1,7 +1,6 @@
 module ActiveRecord
   module QueryMethods
-    # Hstore chain for hstore columns.
-    # Handle conversion of all values to string.
+    # Store chain for hstore columns.
     class HstoreChain < KeyStoreChain
       # Query by store values.
       #
@@ -13,28 +12,9 @@ module ActiveRecord
       #
       #   Model.store(:store, c: 2).all #=> [Model(name: 'first', ...)]
       #   Model.store(:store, b: [1, 2]).size #=> 2
-      if RAILS_5
-        def where(opts)
-          opts = stringify(opts)
-          where_clause = @scope.send(:where_clause_factory).build(opts, {})
-          predicates = where_clause.ast.children.map do |rel|
-            rel.left = to_sql_literal("#{@store_name}->", rel.left)
-            rel
-          end
-          where_clause = ActiveRecord::Relation::WhereClause.new(predicates, where_clause.binds)
-          @scope.where_clause += where_clause
-          @scope
-        end
-      else
-        def where(opts)
-          opts = stringify(opts)
-          where_value = @scope.send(:build_where, opts).map do |rel|
-            rel.left = to_sql_literal("#{@store_name}->", rel.left)
-            rel
-          end
-          @scope.where_values += where_value
-          @scope
-        end
+      def where(opts)
+        opts = stringify(opts)
+        where_with_prefix "#{@store_name}->", opts
       end
 
       private

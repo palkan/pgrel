@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
 
-gem 'arel', github: 'rails/arel'
-gem 'rails', github: 'rails/rails'
-
-# gem 'activerecord', "~>4.0"
-
 gemspec
+
+local_gemfile = 'Gemfile.local'
+
+if File.exist?(local_gemfile)
+  eval(File.read(local_gemfile)) # rubocop:disable Lint/Eval
+else
+  gem 'activerecord', '~>4.0'
+end

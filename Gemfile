@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'arel', path: '../arel'
-gem 'rails', path: '../rails'
+gem 'arel', github: 'rails/arel'
+gem 'rails', github: 'rails/rails'
 
 gemspec

@@ -1,6 +1,0 @@
-test:
-  adapter: postgresql
-  database: pgrel_specs
-  username: pgrel
-  password: pgrel
-  host: localhost

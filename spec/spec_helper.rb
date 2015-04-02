@@ -1,8 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
-ENV["RAILS_ENV"] ||= 'test'
-
 if ENV['COVER']
   require 'simplecov'
   SimpleCov.root File.join(File.dirname(__FILE__), '..')
@@ -11,14 +9,27 @@ end
 
 require 'rspec'
 require 'pry-byebug'
-require 'rails/all'
-require 'rspec/rails'
+require 'active_record'
+require 'pg'
+require 'pgrel'
 
-require "dummy/config/environment"
+ActiveRecord::Base.establish_connection(
+  adapter: 'postgresql',
+  host: 'localhost',
+  username: 'pgrel',
+  database: 'pgrel'
+)
+connection = ActiveRecord::Base.connection
+
+unless connection.extension_enabled?('hstore')
+  connection.enable_extension 'hstore'
+  connection.commit_db_transaction
+end
+
+connection.reconnect!
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
   config.mock_with :rspec
-  config.use_transactional_fixtures = true
 end

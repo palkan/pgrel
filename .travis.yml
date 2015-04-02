@@ -5,9 +5,9 @@ addons:
   postgresql: "9.4"
 
 before_script:
-  - psql -c 'create database pgrel_test;' -U postgres
-  - cp spec/dummy/config/database.travis.yml spec/dummy/config/database.yml
-  - "cd spec/dummy && bundle exec rake db:migrate && cd ../.."
+  - createuser pgrel -d
+  - createdb -U pgrel pgrel
+  - psql -U postgres -d pgrel -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 
 matrix:
   include:

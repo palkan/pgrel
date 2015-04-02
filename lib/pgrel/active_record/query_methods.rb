@@ -1,3 +1,5 @@
+require 'active_record/relation'
+
 module ActiveRecord
   module QueryMethods
     class StoreChain

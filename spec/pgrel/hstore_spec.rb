@@ -1,16 +1,29 @@
 require 'spec_helper'
 
 describe Hstore do
+  before do
+    @connection = ActiveRecord::Base.connection
+
+    @connection.transaction do
+      @connection.create_table('hstores') do |t|
+        t.hstore 'tags', default: {}, null: false
+        t.string 'name'
+      end
+    end
+
+    Hstore.reset_column_information
+  end
+
+  after do
+    @connection.drop_table 'hstores', if_exists: true
+  end
+
   let!(:setup) do
     Hstore.create!(name: 'a', tags: { a: 1, b: 2, f: true })
     Hstore.create!(name: 'b', tags: { a: 2 })
     Hstore.create!(name: 'c', tags: { f: true })
     Hstore.create!(name: 'd', tags: { f: false })
     Hstore.create!(name: 'e', tags: { a: 2, c: 'x' })
-  end
-
-  after(:all) do
-    Hstore.delete_all
   end
 
   it '#store with kwargs' do

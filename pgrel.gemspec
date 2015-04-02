@@ -17,12 +17,11 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split($/)
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency "rails"
+  s.add_runtime_dependency "activerecord", ">=4.0.0"
 
-  s.add_development_dependency "pg"
+  s.add_development_dependency "pg", "~>0.18"
 
   s.add_development_dependency "simplecov", ">= 0.3.8"
   s.add_development_dependency 'pry-byebug'
   s.add_development_dependency "rspec", "~> 3.1.0"
-  s.add_development_dependency "rspec-rails", "~> 3.1.0"
 end

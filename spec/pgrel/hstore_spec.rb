@@ -26,10 +26,16 @@ describe Hstore do
     Hstore.create!(name: 'e', tags: { a: 2, c: 'x' })
   end
 
-  it '#store with kwargs' do
-    expect(Hstore.where.store(:tags, a: 1, b: 2).first.name).to eq 'a'
-    expect(Hstore.where.store(:tags, a: 2, c: 'x').first.name).to eq 'e'
-    expect(Hstore.where.store(:tags, f: false).first.name).to eq 'd'
+  context '#where' do
+    it 'simple values' do
+      expect(Hstore.where.store(:tags, a: 1, b: 2).first.name).to eq 'a'
+      expect(Hstore.where.store(:tags, a: 2, c: 'x').first.name).to eq 'e'
+      expect(Hstore.where.store(:tags, f: false).first.name).to eq 'd'
+    end
+
+    it 'arrays' do
+      expect(Hstore.where.store(:tags, a: [1, 2, 3]).size).to eq 3
+    end
   end
 
   it '#key' do

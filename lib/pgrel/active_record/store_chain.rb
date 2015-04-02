@@ -1,4 +1,5 @@
-RAILS_5 = ActiveRecord.version >= Gem::Version.new("4.3")
+# Check rails version
+RAILS_5 = ActiveRecord.version.release >= Gem::Version.new("5")
 
 module ActiveRecord
   module QueryMethods

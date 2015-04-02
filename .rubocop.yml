@@ -1,0 +1,35 @@
+# This strict rubocop config should be used before submiting PR and should pass
+# Doesn't include:
+# - specs
+
+
+AllCops:
+  # Include gemspec and Rakefile
+  Include:
+    - 'app/**/*.rb'
+    - 'config/**/*.rb'
+    - 'lib/**/*.rb'
+    - 'lib/**/*.rake'
+  Exclude:
+    - 'vendor/**/*'
+    - 'spec/**/*'
+    - 'db/*.rb'
+    - 'bin/**/*'
+  RunRailsCops: false
+  DisplayCopNames: true
+  StyleGuideCopsOnly: false
+
+Metrics/LineLength:
+  Max: 100
+
+Style/BarePercentLiterals:
+  Enabled: false
+
+Style/CommentAnnotation:
+  Enabled: false
+
+Style/RaiseArgs:
+  Enabled: false
+
+Style/StringLiterals: 
+  Enabled: false

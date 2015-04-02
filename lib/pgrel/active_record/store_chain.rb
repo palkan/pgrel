@@ -2,47 +2,13 @@ RAILS_5 = ActiveRecord.version >= Gem::Version.new("4.3")
 
 module ActiveRecord
   module QueryMethods
-    # Base class for different store chains (hstore, jsonb, array)
-    #
+    # Base class for different store chains (hstore, jsonb, array).
+    # Provides _containment_ queries methods.
     # Provides basic methods.
     class StoreChain
       def initialize(scope, store_name)
         @scope = scope
         @store_name = store_name
-      end
-
-      # Single key existence
-      #
-      # Example
-      #   Model.create!(name: 'first', store: {a: 1})
-      #   Model.create!(name: 'second', store: {b: 1})
-      #
-      #   # Get all records which have key 'a' in store 'store'
-      #   Model.store(:store).key('a').all #=> [Model(name: 'first', ...)]
-      def key(key)
-        update_scope "#{@store_name} ? :key", key: key.to_s
-      end
-
-      # Several keys existence
-      #
-      # Example
-      #   Model.create!(name: 'first', store: {a: 1, b: 2})
-      #   Model.create!(name: 'second', store: {b: 1, c: 3})
-      #
-      #   Model.store(:store).keys('a','b').all #=> [Model(name: 'first', ...)]
-      def keys(*keys)
-        update_scope "#{@store_name} ?& ARRAY[:keys]", keys: keys.map(&:to_s)
-      end
-
-      # Any of the keys existence
-      #
-      # Example
-      #   Model.create!(name: 'first', store: {a: 1, b: 2})
-      #   Model.create!(name: 'second', store: {b: 1, c: 3})
-      #
-      #   Model.store(:store).keys('a','b').count #=> 2
-      def any(*keys)
-        update_scope "#{@store_name} ?| ARRAY[:keys]", keys: keys.map(&:to_s)
       end
 
       # Whether the store contains provided store
@@ -67,10 +33,6 @@ module ActiveRecord
       #   Model.store(:store).contains(data).all #=> [Model(name: 'first', ...)]
       def contained(opts)
         update_scope "#{@store_name} <@ #{type_cast(opts)}"
-      end
-
-      def where(_opts)
-        @scope
       end
 
       protected
@@ -100,6 +62,51 @@ module ActiveRecord
           )
         end
       end
+    end
+
+    # Base class for key-value types of stores (hstore, jsonb)
+    class KeyStoreChain < StoreChain
+      # Single key existence
+      #
+      # Example
+      #   Model.create!(name: 'first', store: {a: 1})
+      #   Model.create!(name: 'second', store: {b: 1})
+      #
+      #   # Get all records which have key 'a' in store 'store'
+      #   Model.store(:store).key('a').all #=> [Model(name: 'first', ...)]
+      def key(key)
+        update_scope "#{@store_name} ? :key", key: key.to_s
+      end
+
+      # Several keys existence
+      #
+      # Example
+      #   Model.create!(name: 'first', store: {a: 1, b: 2})
+      #   Model.create!(name: 'second', store: {b: 1, c: 3})
+      #
+      #   Model.store(:store).keys('a','b').all #=> [Model(name: 'first', ...)]
+      def keys(*keys)
+        update_scope(
+          "#{@store_name} ?& ARRAY[:keys]",
+          keys: keys.flatten.map(&:to_s)
+        )
+      end
+
+      # Any of the keys existence
+      #
+      # Example
+      #   Model.create!(name: 'first', store: {a: 1, b: 2})
+      #   Model.create!(name: 'second', store: {b: 1, c: 3})
+      #
+      #   Model.store(:store).keys('a','b').count #=> 2
+      def any(*keys)
+        update_scope(
+          "#{@store_name} ?| ARRAY[:keys]",
+          keys: keys.flatten.map(&:to_s)
+        )
+      end
+
+      protected
 
       def to_sql_literal(prefix, node)
         Arel::Nodes::SqlLiteral.new(

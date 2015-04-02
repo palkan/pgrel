@@ -19,11 +19,11 @@ describe Hstore do
   end
 
   let!(:setup) do
-    Hstore.create!(name: 'a', tags: { a: 1, b: 2, f: true })
-    Hstore.create!(name: 'b', tags: { a: 2 })
-    Hstore.create!(name: 'c', tags: { f: true })
+    Hstore.create!(name: 'a', tags: { a: 1, b: 2, f: true, d: 'a', g: 'b' })
+    Hstore.create!(name: 'b', tags: { a: 2, d: 'b', g: 'e' })
+    Hstore.create!(name: 'c', tags: { f: true, d: 'b' })
     Hstore.create!(name: 'd', tags: { f: false })
-    Hstore.create!(name: 'e', tags: { a: 2, c: 'x' })
+    Hstore.create!(name: 'e', tags: { a: 2, c: 'x', d: 'c', g: 'c' })
   end
 
   context '#where' do
@@ -35,6 +35,26 @@ describe Hstore do
 
     it 'arrays' do
       expect(Hstore.where.store(:tags, a: [1, 2, 3]).size).to eq 3
+    end
+
+    it 'many arrays' do
+      expect(
+        Hstore.where.store(
+          :tags,
+          a: [1, 2, 3],
+          c: %w(x y z),
+          d: %w(a c),
+          g: %w(b c)
+          ).size
+        ).to eq 1
+      expect(
+        Hstore.where.store(
+          :tags,
+          a: [1, 2, 3],
+          d: %w(a c),
+          g: %w(b c)
+          ).size
+        ).to eq 2
     end
   end
 
@@ -52,7 +72,7 @@ describe Hstore do
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'a'
 
-    records = Hstore.where.store(:tags).keys(:a, :c)
+    records = Hstore.where.store(:tags).keys([:a, :c])
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
   end
@@ -61,7 +81,7 @@ describe Hstore do
     records = Hstore.where.store(:tags).any('b', 'f')
     expect(records.size).to eq 3
 
-    records = Hstore.where.store(:tags).any(:c, :b)
+    records = Hstore.where.store(:tags).any([:c, :b])
     expect(records.size).to eq 2
   end
 
@@ -75,7 +95,13 @@ describe Hstore do
   end
 
   it '#contained' do
-    records = Hstore.where.store(:tags).contained(a: 2, b: 2, f: true)
+    records = Hstore.where.store(:tags).contained(
+      a: 2,
+      b: 2,
+      f: true,
+      d: 'b',
+      g: 'e'
+    )
     expect(records.size).to eq 2
 
     records = Hstore.where.store(:tags).contained(c: 'x', f: false)

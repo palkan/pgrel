@@ -2,12 +2,7 @@ module ActiveRecord
   module QueryMethods
     # Hstore chain for hstore columns.
     # Handle conversion of all values to string.
-    class HstoreChain < StoreChain
-      def initialize(scope, store_name)
-        @scope = scope
-        @store_name = store_name
-      end
-
+    class HstoreChain < KeyStoreChain
       # Query by store values.
       #
       # Supports array values.

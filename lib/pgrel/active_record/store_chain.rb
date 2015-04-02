@@ -10,6 +10,7 @@ module ActiveRecord
       def initialize(scope, store_name)
         @scope = scope
         @store_name = store_name
+        @inverted = false
       end
 
       # Whether the store contains provided store
@@ -36,12 +37,27 @@ module ActiveRecord
         update_scope "#{@store_name} <@ #{type_cast(opts)}"
       end
 
+      # Add negation to condition.
+      #
+      # Example
+      #   Model.create!(name: 'first', store: {b: 2})
+      #   Model.create!(name: 'second', store: {b: 1, c: 3})
+      #
+      #   Model.store(:store).not.contains({c: 3}).all #=> [Model(name: 'first')]
+      #
+      #   Model.store(:store).not(b: 2).all #=> [Model(name: 'second')]
+      def not(opts = :chain)
+        @inverted = true
+        return where(opts) unless opts == :chain
+        self
+      end
+
       if RAILS_5
         protected
 
         def update_scope(*opts)
           where_clause = @scope.send(:where_clause_factory).build(opts, {})
-          @scope.where_clause += where_clause
+          @scope.where_clause += @inverted ? where_clause.invert : where_clause
           @scope
         end
 
@@ -61,14 +77,17 @@ module ActiveRecord
             predicates,
             where_clause.binds
           )
-          @scope.where_clause += where_clause
+          @scope.where_clause += @inverted ? where_clause.invert : where_clause
           @scope
         end
       else
         protected
 
         def update_scope(*opts)
-          @scope.where_values += @scope.send(:build_where, opts)
+          where_clause = @scope.send(:build_where, opts).map do |rel|
+            @inverted ? invert_arel(rel) : rel
+          end
+          @scope.where_values += where_clause
           @scope
         end
 
@@ -82,10 +101,23 @@ module ActiveRecord
         def where_with_prefix(prefix, opts)
           where_value = @scope.send(:build_where, opts).map do |rel|
             rel.left = to_sql_literal(prefix, rel.left)
-            rel
+            @inverted ? invert_arel(rel) : rel
           end
           @scope.where_values += where_value
           @scope
+        end
+
+        def invert_arel(rel)
+          case rel
+          when Arel::Nodes::In
+            Arel::Nodes::NotIn.new(rel.left, rel.right)
+          when Arel::Nodes::Equality
+            Arel::Nodes::NotEqual.new(rel.left, rel.right)
+          when String
+            Arel::Nodes::Not.new(Arel::Nodes::SqlLiteral.new(rel))
+          else
+            Arel::Nodes::Not.new(rel)
+          end
         end
       end
     end

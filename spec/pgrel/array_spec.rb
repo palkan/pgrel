@@ -62,4 +62,10 @@ describe ArrayStore do
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'd'
   end
+
+  context '#not' do
+    it '#overlap' do
+      expect(ArrayStore.where.store(:tags).not.overlap('b', 2).size).to eq 1
+    end
+  end
 end

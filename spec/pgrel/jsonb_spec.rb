@@ -41,7 +41,7 @@ describe Jsonb do
         ).first.name).to eq 'd'
     end
 
-    it 'arrays' do
+    it 'arrays (as IN)' do
       expect(Jsonb.where.store(:tags, a: [1, 2, 3]).size).to eq 3
     end
   end
@@ -125,5 +125,13 @@ describe Jsonb do
 
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'c'
+  end
+
+  context '#not' do
+    it '#path' do
+      expect(
+        Jsonb.where.store(:tags).not.path(:d, :f, :h, k: 'a', s: 2).size
+      ).to eq 0
+    end
   end
 end

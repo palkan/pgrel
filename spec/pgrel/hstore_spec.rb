@@ -108,4 +108,18 @@ describe Hstore do
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'd'
   end
+
+  context '#not' do
+    it '#where' do
+      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 1
+    end
+
+    it '#any' do
+      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 0
+    end
+
+    it '#keys' do
+      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 4
+    end
+  end
 end

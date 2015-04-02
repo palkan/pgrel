@@ -10,7 +10,12 @@ module ActiveRecord
       def store(store_name, *opts)
         store_name = store_name.to_s
         column = @scope.klass.columns_hash[store_name]
-        if column.array?
+
+        # Rails 4 column has method 'array'
+        # but Rails 5 has 'array?'.
+        #
+        # So, check both(
+        if (arr = column.try(:array)) || (arr.nil? && column.array?)
           klass = ArrayChain
         else
           column_klass = column.type.capitalize

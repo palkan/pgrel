@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'activerecord', '~>4.2'
+gem 'arel', github: 'rails/arel'
+gem 'rails', github: 'rails/rails'
 
 gemspec

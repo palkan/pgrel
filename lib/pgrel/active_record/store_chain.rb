@@ -1,4 +1,4 @@
-RAILS_5 = ActiveRecord.version >= Gem::Version.new("5")
+RAILS_5 = ActiveRecord.version >= Gem::Version.new("4.3")
 
 module ActiveRecord
   module QueryMethods
@@ -81,23 +81,29 @@ module ActiveRecord
           @scope.where_clause += where_clause
           @scope
         end
+
+        def type_cast(value)
+          ActiveRecord::Base.connection.quote(
+            @scope.table.type_cast_for_database(@store_name, value)
+          )
+        end
       else
         def update_scope(*opts)
           @scope.where_values += @scope.send(:build_where, opts)
           @scope
+        end
+
+        def type_cast(value)
+          ActiveRecord::Base.connection.quote(
+            value,
+            @scope.klass.columns_hash[@store_name]
+          )
         end
       end
 
       def to_sql_literal(prefix, node)
         Arel::Nodes::SqlLiteral.new(
           "#{prefix}'#{node.name}'"
-        )
-      end
-
-      def type_cast(value)
-        ActiveRecord::Base.connection.quote(
-          value,
-          @scope.klass.columns_hash[@store_name]
         )
       end
     end

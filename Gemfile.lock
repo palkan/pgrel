@@ -1,3 +1,66 @@
+GIT
+  remote: git://github.com/rails/arel.git
+  revision: c7ca1568013d244b9c61147b20b4424d741e91ac
+  specs:
+    arel (7.0.0.alpha)
+
+GIT
+  remote: git://github.com/rails/rails.git
+  revision: a05f3e5f96f7a8aa55483d91becdbe49b81833fd
+  specs:
+    actionmailer (5.0.0.alpha)
+      actionpack (= 5.0.0.alpha)
+      actionview (= 5.0.0.alpha)
+      activejob (= 5.0.0.alpha)
+      mail (~> 2.5, >= 2.5.4)
+      rails-dom-testing (~> 1.0, >= 1.0.5)
+    actionpack (5.0.0.alpha)
+      actionview (= 5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      rack (~> 1.6)
+      rack-test (~> 0.6.3)
+      rails-dom-testing (~> 1.0, >= 1.0.5)
+      rails-html-sanitizer (~> 1.0, >= 1.0.2)
+    actionview (5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      builder (~> 3.1)
+      erubis (~> 2.7.0)
+      rails-dom-testing (~> 1.0, >= 1.0.5)
+      rails-html-sanitizer (~> 1.0, >= 1.0.2)
+    activejob (5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      globalid (>= 0.3.0)
+    activemodel (5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      builder (~> 3.1)
+    activerecord (5.0.0.alpha)
+      activemodel (= 5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      arel (= 7.0.0.alpha)
+    activesupport (5.0.0.alpha)
+      i18n (~> 0.7)
+      json (~> 1.7, >= 1.7.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.3, >= 0.3.4)
+      tzinfo (~> 1.1)
+    rails (5.0.0.alpha)
+      actionmailer (= 5.0.0.alpha)
+      actionpack (= 5.0.0.alpha)
+      actionview (= 5.0.0.alpha)
+      activejob (= 5.0.0.alpha)
+      activemodel (= 5.0.0.alpha)
+      activerecord (= 5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      bundler (>= 1.3.0, < 2.0)
+      railties (= 5.0.0.alpha)
+      sprockets-rails
+    railties (5.0.0.alpha)
+      actionpack (= 5.0.0.alpha)
+      activesupport (= 5.0.0.alpha)
+      method_source
+      rake (>= 0.8.7)
+      thor (>= 0.18.1, < 2.0)
+
 PATH
   remote: .
   specs:
@@ -7,20 +70,6 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.1)
-      activesupport (= 4.2.1)
-      builder (~> 3.1)
-    activerecord (4.2.1)
-      activemodel (= 4.2.1)
-      activesupport (= 4.2.1)
-      arel (~> 6.0)
-    activesupport (4.2.1)
-      i18n (~> 0.7)
-      json (~> 1.7, >= 1.7.7)
-      minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
-      tzinfo (~> 1.1)
-    arel (6.0.0)
     builder (3.2.2)
     byebug (4.0.4)
       columnize (= 0.9.0)
@@ -28,11 +77,23 @@ GEM
     columnize (0.9.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
+    erubis (2.7.0)
+    globalid (0.3.3)
+      activesupport (>= 4.1.0)
+    hike (1.2.3)
     i18n (0.7.0)
     json (1.8.2)
+    loofah (2.0.1)
+      nokogiri (>= 1.5.9)
+    mail (2.6.3)
+      mime-types (>= 1.16, < 3)
     method_source (0.8.2)
+    mime-types (2.4.3)
+    mini_portile (0.6.2)
     minitest (5.5.1)
     multi_json (1.11.0)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
     pg (0.18.1)
     pry (0.10.1)
       coderay (~> 1.1.0)
@@ -41,6 +102,17 @@ GEM
     pry-byebug (3.1.0)
       byebug (~> 4.0)
       pry (~> 0.10)
+    rack (1.6.0)
+    rack-test (0.6.3)
+      rack (>= 1.0)
+    rails-deprecated_sanitizer (1.0.3)
+      activesupport (>= 4.2.0.alpha)
+    rails-dom-testing (1.0.6)
+      activesupport (>= 4.2.0.beta, < 5.0)
+      nokogiri (~> 1.6.0)
+      rails-deprecated_sanitizer (>= 1.0.1)
+    rails-html-sanitizer (1.0.2)
+      loofah (~> 2.0)
     rake (10.4.2)
     rspec (3.1.0)
       rspec-core (~> 3.1.0)
@@ -60,7 +132,18 @@ GEM
       simplecov-html (~> 0.9.0)
     simplecov-html (0.9.0)
     slop (3.6.0)
+    sprockets (2.12.3)
+      hike (~> 1.2)
+      multi_json (~> 1.0)
+      rack (~> 1.0)
+      tilt (~> 1.1, != 1.3.0)
+    sprockets-rails (2.2.4)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      sprockets (>= 2.8, < 4.0)
+    thor (0.19.1)
     thread_safe (0.3.5)
+    tilt (1.4.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
 
@@ -68,10 +151,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (~> 4.2)
+  arel!
   pg (~> 0.18)
   pgrel!
   pry-byebug
+  rails!
   rake (~> 10.1)
   rspec (~> 3.1.0)
   simplecov (>= 0.3.8)

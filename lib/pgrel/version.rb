@@ -1,3 +1,3 @@
-module Pgrel
-  VERSION = "0.1.0"
+module Pgrel # :nodoc:
+  VERSION = "0.1.1"
 end

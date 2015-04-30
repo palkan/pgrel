@@ -24,6 +24,7 @@ describe Hstore do
     Hstore.create!(name: 'c', tags: { f: true, d: 'b' })
     Hstore.create!(name: 'd', tags: { f: false })
     Hstore.create!(name: 'e', tags: { a: 2, c: 'x', d: 'c', g: 'c' })
+    Hstore.create!(tags: { 1 => 2 })
   end
 
   context '#where' do
@@ -31,6 +32,10 @@ describe Hstore do
       expect(Hstore.where.store(:tags, a: 1, b: 2).first.name).to eq 'a'
       expect(Hstore.where.store(:tags, a: 2, c: 'x').first.name).to eq 'e'
       expect(Hstore.where.store(:tags, f: false).first.name).to eq 'd'
+    end
+
+    it 'integer keys' do
+      expect(Hstore.where.store(:tags, 1 => 2).size).to eq 1
     end
 
     it 'arrays' do
@@ -115,11 +120,11 @@ describe Hstore do
     end
 
     it '#any' do
-      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 0
+      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 1
     end
 
     it '#keys' do
-      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 4
+      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 5
     end
   end
 end

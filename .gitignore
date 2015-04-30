@@ -26,7 +26,8 @@ Thumbs.db
 coverage/
 
 .bundle/
-log/*.log
+*.log
+*.gem
 pkg/
 spec/dummy/log/*.log
 spec/dummy/tmp/

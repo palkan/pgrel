@@ -19,10 +19,6 @@ AllCops:
   DisplayCopNames: true
   StyleGuideCopsOnly: false
 
-Style/Documentation:
-  Exclude:
-    - 'lib/**/version.rb'
-
 Metrics/LineLength:
   Max: 100
 

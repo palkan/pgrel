@@ -26,7 +26,7 @@ module ActiveRecord
         when Array
           val.map { |v| stringify(v) }
         when Hash
-          Hash[val.map { |k, v| [k, stringify(v)] }]
+          Hash[val.map { |k, v| [stringify(k), stringify(v)] }]
         else
           val.to_s
         end

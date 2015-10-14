@@ -11,7 +11,7 @@ before_script:
 
 matrix:
   include:
-    - rvm: 2.2.1
+    - rvm: 2.2.3
       gemfile: gemfiles/rails5.gemfile
     - rvm: 2.2.1
       gemfile: gemfiles/rails42.gemfile

@@ -116,7 +116,8 @@ describe Hstore do
 
   context '#not' do
     it '#where' do
-      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 1
+      expect(Hstore.where.store(:tags).not(a: 2).size).to eq 4
+      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 6
     end
 
     it '#any' do

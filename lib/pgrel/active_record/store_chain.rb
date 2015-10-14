@@ -22,7 +22,7 @@ module ActiveRecord
       #   data = {a: 1}
       #   Model.store(:store).contains(data).all #=> [Model(name: 'first', ...)]
       def contains(opts)
-        update_scope "#{@store_name} @> #{type_cast(opts)}"
+        update_scope contains_clause(opts)
       end
 
       # Whether the store is contained within provided store
@@ -52,6 +52,37 @@ module ActiveRecord
         self
       end
 
+      # Query by store values.
+      # Supports array values.
+      #
+      # NOTE: This method uses "@>" (contains) operator with logic (AND/OR)
+      # and not uses "->" (value-by-key). The use of "contains" operator allows us to
+      # use GIN index effectively.
+      #
+      # Example
+      #   Model.create!(name: 'first', store: {b: 1, c: 2})
+      #   Model.create!(name: 'second', store: {b: 2, c: 3})
+      #
+      #   Model.store(:store, c: 2).all #=> [Model(name: 'first', ...)]
+      #   #=> (SQL) select * from ... where store @> '"c"=>"2"'::hstore
+      #
+      #   Model.store(:store, b: [1, 2]).size #=> 2
+      #   #=> (SQL) select * from ... where (store @> '"c"=>"1"'::hstore) or
+      #                                     (store @> '"c"=>"2"'::hstore)
+      def where(opts)
+        update_scope(
+          opts.map do |k, v|
+            case v
+            when Array
+              "(#{build_or_contains(k, v)})"
+            else
+              contains_clause(k => v)
+            end
+          end.join(' and ')
+        )
+        @scope
+      end
+
       if RAILS_5
         protected
 
@@ -65,20 +96,6 @@ module ActiveRecord
           ActiveRecord::Base.connection.quote(
             @scope.table.type_cast_for_database(@store_name, value)
           )
-        end
-
-        def where_with_prefix(prefix, opts)
-          where_clause = @scope.send(:where_clause_factory).build(opts, {})
-          predicates = where_clause.ast.children.map do |rel|
-            rel.left = to_sql_literal(prefix, rel.left)
-            rel
-          end
-          where_clause = ActiveRecord::Relation::WhereClause.new(
-            predicates,
-            where_clause.binds
-          )
-          @scope.where_clause += @inverted ? where_clause.invert : where_clause
-          @scope
         end
       else
         protected
@@ -98,15 +115,6 @@ module ActiveRecord
           )
         end
 
-        def where_with_prefix(prefix, opts)
-          where_value = @scope.send(:build_where, opts).map do |rel|
-            rel.left = to_sql_literal(prefix, rel.left)
-            @inverted ? invert_arel(rel) : rel
-          end
-          @scope.where_values += where_value
-          @scope
-        end
-
         def invert_arel(rel)
           case rel
           when Arel::Nodes::In
@@ -119,6 +127,16 @@ module ActiveRecord
             Arel::Nodes::Not.new(rel)
           end
         end
+      end
+
+      private
+
+      def contains_clause(opts)
+        "#{@store_name} @> #{type_cast(opts)}"
+      end
+
+      def build_or_contains(k, vals)
+        vals.map { |v| contains_clause(k => v) }.join(' or ')
       end
     end
 
@@ -170,6 +188,31 @@ module ActiveRecord
         Arel::Nodes::SqlLiteral.new(
           "#{prefix}'#{node.name}'"
         )
+      end
+
+      if RAILS_5
+        def where_with_prefix(prefix, opts)
+          where_clause = @scope.send(:where_clause_factory).build(opts, {})
+          predicates = where_clause.ast.children.map do |rel|
+            rel.left = to_sql_literal(prefix, rel.left)
+            rel
+          end
+          where_clause = ActiveRecord::Relation::WhereClause.new(
+            predicates,
+            where_clause.binds
+          )
+          @scope.where_clause += @inverted ? where_clause.invert : where_clause
+          @scope
+        end
+      else
+        def where_with_prefix(prefix, opts)
+          where_value = @scope.send(:build_where, opts).map do |rel|
+            rel.left = to_sql_literal(prefix, rel.left)
+            @inverted ? invert_arel(rel) : rel
+          end
+          @scope.where_values += where_value
+          @scope
+        end
       end
     end
   end

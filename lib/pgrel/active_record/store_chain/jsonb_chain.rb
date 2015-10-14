@@ -2,23 +2,7 @@ module ActiveRecord
   module QueryMethods
     # Store chain for jsonb columns.
     class JsonbChain < KeyStoreChain
-      # Query by store values.
-      # Supports array values (convert to IN statement).
-      #
-      # Example
-      #   Model.create!(name: 'first', store: {b: 1, c: 2})
-      #   Model.create!(name: 'second', store: {b: 2, c: 3})
-      #
-      #   Model.store(:store, c: 2).all #=> [Model(name: 'first', ...)]
-      #   Model.store(:store, b: [1, 2]).size #=> 2
-      def where(opts)
-        opts = flatten_json(opts)
-        where_with_prefix "#{@store_name}->", opts
-      end
-
-      # Query by quality in path.
-      #
-      # Path can be set as object or as args.
+      # Query by value in path.
       #
       # Example:
       #   Model.create!(name: 'first', store: {b: 1, c: { d: 3 } })
@@ -48,18 +32,6 @@ module ActiveRecord
       end
 
       private
-
-      def flatten_json(val)
-        Hash[
-          val.map do |k, v|
-            if v.is_a?(Array)
-              [k, v.map { |i| ::ActiveSupport::JSON.encode(i) }]
-            else
-              [k, ::ActiveSupport::JSON.encode(v)]
-            end
-          end
-        ]
-      end
 
       def flatten_hash(hash)
         case hash

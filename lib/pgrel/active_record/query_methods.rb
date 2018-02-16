@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_record/relation'
 require 'pgrel/active_record/store_chain'
 require 'pgrel/active_record/store_chain/array_chain'

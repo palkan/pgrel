@@ -5,19 +5,14 @@ addons:
   postgresql: "9.4"
 
 before_script:
-  - createuser pgrel -d
-  - createdb -U pgrel pgrel
+  - createdb pgrel
   - psql -U postgres -d pgrel -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 
 matrix:
   include:
-    - rvm: 2.3.0
+    - rvm: 2.5.0
       gemfile: gemfiles/rails5.gemfile
-    - rvm: 2.2.3
+    - rvm: 2.4.3
       gemfile: gemfiles/rails5.gemfile
-    - rvm: 2.2.1
+    - rvm: 2.3.2
       gemfile: gemfiles/rails42.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails41.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails40.gemfile

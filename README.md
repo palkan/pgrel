@@ -4,7 +4,7 @@
 
 ActiveRecord extension for querying hstore, array and jsonb.
 
-Compatible with **Rails** >= 4.0 (and even with **Rails 5**!).
+Compatible with **Rails** >= 4.2.
 
 ### General
 

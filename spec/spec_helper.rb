@@ -16,7 +16,6 @@ require 'pgrel'
 ActiveRecord::Base.establish_connection(
   adapter: 'postgresql',
   host: 'localhost',
-  username: 'pgrel',
   database: 'pgrel'
 )
 connection = ActiveRecord::Base.connection

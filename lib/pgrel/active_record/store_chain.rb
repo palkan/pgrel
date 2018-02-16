@@ -1,5 +1,4 @@
-# Check rails version
-RAILS_5 = ActiveRecord.version.release >= Gem::Version.new("5")
+# frozen_string_literal: true
 
 module ActiveRecord
   module QueryMethods
@@ -83,7 +82,7 @@ module ActiveRecord
         @scope
       end
 
-      if RAILS_5
+      if ActiveRecord.version.release >= Gem::Version.new("5")
         protected
 
         def update_scope(*opts)
@@ -94,7 +93,7 @@ module ActiveRecord
 
         def type_cast(value)
           ActiveRecord::Base.connection.quote(
-            @scope.table.type_cast_for_database(@store_name, value)
+            @scope.klass.type_caster.type_cast_for_database(@store_name, value)
           )
         end
       else
@@ -190,9 +189,9 @@ module ActiveRecord
         )
       end
 
-      if RAILS_5
+      if ActiveRecord.version.release >= Gem::Version.new("5")
         def where_with_prefix(prefix, opts)
-          where_clause = @scope.send(:where_clause_factory).build(opts, {})
+          where_clause = @scope.send(:where_clause_factory).build(opts, [])
           predicates = where_clause.ast.children.map do |rel|
             rel.left = to_sql_literal(prefix, rel.left)
             rel

@@ -25,6 +25,7 @@ describe Jsonb do
     Jsonb.create!(name: 'd', tags: { a: 1, b: { c: 'd', e: true } })
     Jsonb.create!(name: 'e', tags: { b: 2, c: 'e' })
     Jsonb.create!(name: 'f', tags: { d: { e: 1, f: { h: { k: 'a', s: 2 } } } })
+    Jsonb.create!(name: 'g', tags: { f: false, g: { a: 1, b: '1' }, h: [1, '1'] })
     Jsonb.create!(name: 'z', tags: { z: nil } )
   end
 
@@ -47,9 +48,9 @@ describe Jsonb do
     end
 
     it 'lonely keys' do
-      result = Jsonb.where.store(:tags, [:z])
-      expect(result.size).to eq 1
-      expect(result.first.name).to eq 'z'
+      records = Jsonb.where.store(:tags, [:z])
+      expect(records.size).to eq 1
+      expect(records.first.name).to eq 'z'
     end
 
     it 'many hashes' do
@@ -105,6 +106,26 @@ describe Jsonb do
     records = Jsonb.where.store(:tags).keys([:b, :c])
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
+  end
+
+  it '#value' do
+    records = Jsonb.where.store(:tags).value(1, false, { e: 2 })
+    expect(records.size).to eq 3
+  end
+
+  it '#values' do
+    records = Jsonb.where.store(:tags).values(1)
+    expect(records.size).to eq 2
+
+    records = Jsonb.where.store(:tags).values(2, 'e')
+    expect(records.size).to eq 1
+    expect(records.first.name).to eq 'e'
+
+    records = Jsonb.where.store(:tags).values(e: 1, f: { h: { k: 'a', s: 2 } })
+    expect(records.size).to eq 1
+
+    records = Jsonb.where.store(:tags).values(false, { a: 1, b: '1' }, [1, '1'])
+    expect(records.size).to eq 1
   end
 
   it '#any' do

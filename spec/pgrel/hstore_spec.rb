@@ -24,6 +24,7 @@ describe Hstore do
     Hstore.create!(name: 'c', tags: { f: true, d: 'b' })
     Hstore.create!(name: 'd', tags: { f: false })
     Hstore.create!(name: 'e', tags: { a: 2, c: 'x', d: 'c', g: 'c' })
+    Hstore.create!(name: 'f', tags: { i: [1, 2, { a: 1 }], j: { a: 1, b: [1], f: false } } )
     Hstore.create!(tags: { 1 => 2 })
     Hstore.create!(name: 'z', tags: { z: nil })
   end
@@ -64,9 +65,9 @@ describe Hstore do
     end
 
     it 'lonely keys' do
-      result = Hstore.where.store(:tags, [:z])
-      expect(result.size).to eq 1
-      expect(result.first.name).to eq 'z'
+      records = Hstore.where.store(:tags, [:z])
+      expect(records.size).to eq 1
+      expect(records.first.name).to eq 'z'
     end
 
     it 'many hashes' do
@@ -96,6 +97,26 @@ describe Hstore do
     records = Hstore.where.store(:tags).keys([:a, :c])
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
+  end
+
+  it '#value' do
+    records = Hstore.where.store(:tags).value(1, false, [1, 2, { a: 1 }])
+    expect(records.size).to eq 3
+  end
+
+  it '#values' do
+    records = Hstore.where.store(:tags).values(1)
+    expect(records.size).to eq 1
+    expect(records.first.name).to eq 'a'
+
+    records = Hstore.where.store(:tags).values('2', 'b')
+    expect(records.size).to eq 2
+
+    records = Hstore.where.store(:tags).values(true)
+    expect(records.size).to eq 2
+
+    records = Hstore.where.store(:tags).values([1, 2, { a: 1 }], { a: 1, b: [1], f: false })
+    expect(records.size).to eq 1
   end
 
   it '#any' do
@@ -132,16 +153,16 @@ describe Hstore do
 
   context '#not' do
     it '#where' do
-      expect(Hstore.where.store(:tags).not(a: 2).size).to eq 5
-      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 7
+      expect(Hstore.where.store(:tags).not(a: 2).size).to eq 6
+      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 8
     end
 
     it '#any' do
-      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 2
+      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 3
     end
 
     it '#keys' do
-      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 6
+      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 7
     end
   end
 

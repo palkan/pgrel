@@ -53,6 +53,18 @@ Hstore.where.store(:tags).any('a', 'b')
 #=> select * from hstores where tags ?| array['a', 'b']
 ```
 
+Values existence:
+
+```ruby
+# Retrieve items that have value '1' OR '2'
+Hstore.where.store(:tags).value(1, 2)
+#=> select * from hstores where (avals(tags) @> ARRAY['1'] OR avals(tags) @> ARRAY['2'] )
+
+# Retrieve items that have values '1' AND '2'
+Hstore.where.store(:tags).values(1, 2)
+#=> select * from hstores where (avals(tags) @> ARRAY['1', '2'])
+```
+
 Containment:
 
 ```ruby

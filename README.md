@@ -6,11 +6,6 @@ ActiveRecord extension for querying hstore, array and jsonb.
 
 Compatible with **Rails** >= 4.2.
 
-### General
-
-The functionality is based on ActiveRecord `WhereChain`. 
-To start querying call `where(:store_name)` and chain it with store-specific call (see below).
-
 #### Install
 
 In your Gemfile:
@@ -21,6 +16,11 @@ gem "pgrel", "~>0.1"
 
 ### HStore
 
+#### Querying
+
+The functionality is based on ActiveRecord `WhereChain`. 
+To start querying call `where(:store_name)` and chain it with store-specific call (see below).
+
 Query by key value:
 
 ```ruby
@@ -30,8 +30,11 @@ Hstore.where.store(:tags, a: 1, b: 2)
 Hstore.where.store(:tags, a: [1, 2])
 #=> select * from hstores where (tags @> '"a"=>"1"' or tags @> '"a"=>"2"')
 
-Hstore.where.store(:tags, [:a])
+Hstore.where.store(:tags, :a)
 #=> select * from hstores where (tags @> '"a"=>NULL')
+
+Hstore.where.store(:tags, { a: 1 }, { b: 2 })
+#=> select * from hstores where (tags @> '"a"=>"1" or tags @> "b"=>"2"')
 ```
 
 Keys existence:
@@ -60,9 +63,33 @@ Hstore.where.store(:tags).contained(a: 1, b: 2)
 #=> select * from hstores where tags <@ '\"a\"=>\"1\", \"b\"=>\"2\"'
 ```
 
+#### Update
+
+Is implemented through `ActiveRecord::Store::FlexibleHstore` and `ActiveRecord::Store::FlexibleJsonb`
+objects. You can get them by sending `update_store(store_name)` to relation or class.
+
+Add key, value pairs:
+
+```ruby
+Hstore.update_store(:tags).merge(new_key: 1, one_more: 2)
+Hstore.update_store(:tags).merge([[:new_key, 1], [:one_more, 2]])
+```
+
+Delete keys:
+
+```ruby
+Hstore.update_store(:tags).delete_keys(:a, :b)
+```
+
+Delete key, value pairs:
+
+```ruby
+Hstore.update_store(:tags).delete_pairs(a: 1, b: 2)
+```
+
 ### JSONB
 
-All queries for Hstore also available for JSONB.
+All queries and updates for Hstore also available for JSONB.
 
 **NOTE**. Querying by array value always resolves to `(... or ...)` statement. 
 Thus it's impossible to query json array value, e.g.:

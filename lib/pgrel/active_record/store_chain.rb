@@ -68,16 +68,20 @@ module ActiveRecord
       #   Model.store(:store, b: [1, 2]).size #=> 2
       #   #=> (SQL) select * from ... where (store @> '"c"=>"1"'::hstore) or
       #                                     (store @> '"c"=>"2"'::hstore)
-      def where(opts)
+      def where(*opts)
+        opts.map! { |opt| opt.is_a?(Hash) ? opt : [opt] }
+
         update_scope(
-          opts.map do |k, v|
-            case v
-            when Array
-              "(#{build_or_contains(k, v)})"
-            else
-              contains_clause(k => v)
-            end
-          end.join(' and ')
+          opts.map do |opt|
+            opt.map do |k, v|
+              case v
+              when Array
+                "(#{build_or_contains(k, v)})"
+              else
+                contains_clause(k => v)
+              end
+            end.join(' and ')
+          end.join(' or ')
         )
         @scope
       end

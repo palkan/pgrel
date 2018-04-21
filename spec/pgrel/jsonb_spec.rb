@@ -51,6 +51,15 @@ describe Jsonb do
       expect(result.size).to eq 1
       expect(result.first.name).to eq 'z'
     end
+
+    it 'many hashes' do
+      expect(Jsonb.where.store(:tags, { a: 2 }, { b: 2 }).size).to eq 2
+    end
+
+    it 'many hashes and lonely keys' do
+      expect(Jsonb.where.store(:tags, { a: 2 }, :z).size).to eq 2
+      expect(Jsonb.where.store(:tags, { a: 2 }, [:z]).size).to eq 2
+    end
   end
 
   context '#path' do
@@ -139,6 +148,36 @@ describe Jsonb do
       expect(
         Jsonb.where.store(:tags).not.path(:d, :f, :h, k: 'a', s: 2).size
       ).to eq 0
+    end
+  end
+
+  context "#update_store" do
+    let(:store) { :tags }
+
+    subject { Jsonb.update_store(store) }
+
+    it "#delete_keys" do
+      subject.delete_keys(:e)
+      expect(Jsonb.where.store(store).keys(:i)).to_not exist
+
+      subject.delete_keys(:a, :b)
+      expect(Jsonb.where.store(store).keys(:a)).to_not exist
+      expect(Jsonb.where.store(store).keys(:b)).to_not exist
+
+      subject.delete_keys([:c, :d])
+      expect(Jsonb.where.store(store).keys(:c)).to_not exist
+      expect(Jsonb.where.store(store).keys(:d)).to_not exist
+    end
+
+    it "#merge" do
+      subject.merge(new_key: 1)
+      expect(Jsonb.where.store(store).keys(:new_key).count).to be_eql Jsonb.count
+    end
+
+    it "#delete_pairs" do
+      subject.delete_pairs(a: 1, d: { e: 2 })
+      expect(Jsonb.where.store(store, a: 1)).to_not exist
+      expect(Jsonb.where.store(store, d: { e: 2 })).to_not exist
     end
   end
 end

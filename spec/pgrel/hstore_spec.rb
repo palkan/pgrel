@@ -68,6 +68,15 @@ describe Hstore do
       expect(result.size).to eq 1
       expect(result.first.name).to eq 'z'
     end
+
+    it 'many hashes' do
+      expect(Hstore.where.store(:tags, { a: 2 }, { b: 2 }).size).to eq 3
+    end
+
+    it 'many hashes and lonely keys' do
+      expect(Hstore.where.store(:tags, { a: 1 }, :z).size).to eq 2
+      expect(Hstore.where.store(:tags, { a: 1 }, [:z]).size).to eq 2
+    end
   end
 
   it '#key' do
@@ -123,16 +132,51 @@ describe Hstore do
 
   context '#not' do
     it '#where' do
-      expect(Hstore.where.store(:tags).not(a: 2).size).to eq 4
-      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 6
+      expect(Hstore.where.store(:tags).not(a: 2).size).to eq 5
+      expect(Hstore.where.store(:tags).not(a: 1, g: 'c').size).to eq 7
     end
 
     it '#any' do
-      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 1
+      expect(Hstore.where.store(:tags).not.any('a', 'f').size).to eq 2
     end
 
     it '#keys' do
-      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 5
+      expect(Hstore.where.store(:tags).not.keys('a', 'f').size).to eq 6
+    end
+  end
+
+  context "#update_store" do
+    let(:store) { :tags }
+
+    subject { Hstore.update_store(store) }
+
+    it "#delete_keys" do
+      subject.delete_keys(:i)
+      expect(Hstore.where.store(store).keys(:i)).to_not exist
+
+      subject.delete_keys(:a, :b)
+      expect(Hstore.where.store(store).keys(:a)).to_not exist
+      expect(Hstore.where.store(store).keys(:b)).to_not exist
+
+      subject.delete_keys([:c, :d])
+      expect(Hstore.where.store(store).keys(:c)).to_not exist
+      expect(Hstore.where.store(store).keys(:d)).to_not exist
+    end
+
+    it "#merge" do
+      subject.merge(new_key: 1)
+      expect(Hstore.where.store(store).keys(:new_key).count).to be_eql Hstore.count
+
+      subject.merge([['new_key2', 'a'], ['new_key3', 'b']])
+      expect(Hstore.where.store(store).keys(:new_key2, :new_key3).count).to be_eql Hstore.count
+    end
+
+    it "#delete_pairs" do
+      subject.delete_pairs(f: true, a: 1)
+      expect(Hstore.where.store(store, f: true)).to_not exist
+      expect(Hstore.where.store(store, a: 1)).to_not exist
+      expect(Hstore.where.store(store, f: false)).to exist
+      expect(Hstore.where.store(store, a: 2)).to exist
     end
   end
 end

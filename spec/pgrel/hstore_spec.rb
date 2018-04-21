@@ -25,6 +25,7 @@ describe Hstore do
     Hstore.create!(name: 'd', tags: { f: false })
     Hstore.create!(name: 'e', tags: { a: 2, c: 'x', d: 'c', g: 'c' })
     Hstore.create!(tags: { 1 => 2 })
+    Hstore.create!(name: 'z', tags: { z: nil })
   end
 
   context '#where' do
@@ -60,6 +61,12 @@ describe Hstore do
           g: %w(b c)
           ).size
         ).to eq 2
+    end
+
+    it 'lonely keys' do
+      result = Hstore.where.store(:tags, [:z])
+      expect(result.size).to eq 1
+      expect(result.first.name).to eq 'z'
     end
   end
 

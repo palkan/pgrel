@@ -29,6 +29,9 @@ Hstore.where.store(:tags, a: 1, b: 2)
 
 Hstore.where.store(:tags, a: [1, 2])
 #=> select * from hstores where (tags @> '"a"=>"1"' or tags @> '"a"=>"2"')
+
+Hstore.where.store(:tags, [:a])
+#=> select * from hstores where (tags @> '"a"=>NULL')
 ```
 
 Keys existence:

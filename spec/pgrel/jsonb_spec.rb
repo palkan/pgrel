@@ -25,6 +25,7 @@ describe Jsonb do
     Jsonb.create!(name: 'd', tags: { a: 1, b: { c: 'd', e: true } })
     Jsonb.create!(name: 'e', tags: { b: 2, c: 'e' })
     Jsonb.create!(name: 'f', tags: { d: { e: 1, f: { h: { k: 'a', s: 2 } } } })
+    Jsonb.create!(name: 'z', tags: { z: nil } )
   end
 
   context '#where' do
@@ -43,6 +44,12 @@ describe Jsonb do
 
     it 'arrays (as IN)' do
       expect(Jsonb.where.store(:tags, a: [1, 2, 3]).size).to eq 3
+    end
+
+    it 'lonely keys' do
+      result = Jsonb.where.store(:tags, [:z])
+      expect(result.size).to eq 1
+      expect(result.first.name).to eq 'z'
     end
   end
 

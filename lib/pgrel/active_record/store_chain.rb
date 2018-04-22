@@ -196,10 +196,14 @@ module ActiveRecord
             rel.left = to_sql_literal(prefix, rel.left)
             rel
           end
-          where_clause = ActiveRecord::Relation::WhereClause.new(
-            predicates,
-            where_clause.binds
-          )
+
+          params = if ActiveRecord.version.release >= Gem::Version.new("5.2.0")
+                     [predicates]
+                   else
+                     [predicates, where_clause.binds]
+                   end
+
+          where_clause = ActiveRecord::Relation::WhereClause.new(*params)
           @scope.where_clause += @inverted ? where_clause.invert : where_clause
           @scope
         end

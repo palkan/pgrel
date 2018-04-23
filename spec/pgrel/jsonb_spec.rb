@@ -25,6 +25,8 @@ describe Jsonb do
     Jsonb.create!(name: 'd', tags: { a: 1, b: { c: 'd', e: true } })
     Jsonb.create!(name: 'e', tags: { b: 2, c: 'e' })
     Jsonb.create!(name: 'f', tags: { d: { e: 1, f: { h: { k: 'a', s: 2 } } } })
+    Jsonb.create!(name: 'g', tags: { f: false, g: { a: 1, b: '1' }, h: [1, '1'] })
+    Jsonb.create!(name: 'z', tags: { z: nil } )
   end
 
   context '#where' do
@@ -43,6 +45,21 @@ describe Jsonb do
 
     it 'arrays (as IN)' do
       expect(Jsonb.where.store(:tags, a: [1, 2, 3]).size).to eq 3
+    end
+
+    it 'lonely keys' do
+      records = Jsonb.where.store(:tags, [:z])
+      expect(records.size).to eq 1
+      expect(records.first.name).to eq 'z'
+    end
+
+    it 'many hashes' do
+      expect(Jsonb.where.store(:tags, { a: 2 }, { b: 2 }).size).to eq 2
+    end
+
+    it 'many hashes and lonely keys' do
+      expect(Jsonb.where.store(:tags, { a: 2 }, :z).size).to eq 2
+      expect(Jsonb.where.store(:tags, { a: 2 }, [:z]).size).to eq 2
     end
   end
 
@@ -91,6 +108,26 @@ describe Jsonb do
     expect(records.first.name).to eq 'e'
   end
 
+  it '#value' do
+    records = Jsonb.where.store(:tags).value(1, false, { e: 2 })
+    expect(records.size).to eq 3
+  end
+
+  it '#values' do
+    records = Jsonb.where.store(:tags).values(1)
+    expect(records.size).to eq 2
+
+    records = Jsonb.where.store(:tags).values(2, 'e')
+    expect(records.size).to eq 1
+    expect(records.first.name).to eq 'e'
+
+    records = Jsonb.where.store(:tags).values(e: 1, f: { h: { k: 'a', s: 2 } })
+    expect(records.size).to eq 1
+
+    records = Jsonb.where.store(:tags).values(false, { a: 1, b: '1' }, [1, '1'])
+    expect(records.size).to eq 1
+  end
+
   it '#any' do
     records = Jsonb.where.store(:tags).any('a', 'b')
     expect(records.size).to eq 4
@@ -132,6 +169,36 @@ describe Jsonb do
       expect(
         Jsonb.where.store(:tags).not.path(:d, :f, :h, k: 'a', s: 2).size
       ).to eq 0
+    end
+  end
+
+  context "#update_store" do
+    let(:store) { :tags }
+
+    subject { Jsonb.update_store(store) }
+
+    it "#delete_keys" do
+      subject.delete_keys(:e)
+      expect(Jsonb.where.store(store).keys(:i)).to_not exist
+
+      subject.delete_keys(:a, :b)
+      expect(Jsonb.where.store(store).keys(:a)).to_not exist
+      expect(Jsonb.where.store(store).keys(:b)).to_not exist
+
+      subject.delete_keys([:c, :d])
+      expect(Jsonb.where.store(store).keys(:c)).to_not exist
+      expect(Jsonb.where.store(store).keys(:d)).to_not exist
+    end
+
+    it "#merge" do
+      subject.merge(new_key: 1)
+      expect(Jsonb.where.store(store).keys(:new_key).count).to be_eql Jsonb.count
+    end
+
+    it "#delete_pairs" do
+      subject.delete_pairs(a: 1, d: { e: 2 })
+      expect(Jsonb.where.store(store, a: 1)).to_not exist
+      expect(Jsonb.where.store(store, d: { e: 2 })).to_not exist
     end
   end
 end

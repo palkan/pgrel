@@ -10,7 +10,7 @@ module ActiveRecord
 
       def merge(pairs)
         relation.update_all(["#{store_name} = hstore(#{store_name}) || hstore(ARRAY[:keys])",
-                            keys: pairs.map { |k, v| [k.to_s, v.to_s] }.flatten])
+                            keys: pairs.to_a.flatten.map(&:to_s)])
       end
 
       def delete_pairs(pairs)

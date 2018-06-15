@@ -171,6 +171,11 @@ describe Hstore do
 
     subject { Hstore.update_store(store) }
 
+    it "works on relation" do
+      Hstore.where.store(store).keys(:a).update_store(store).delete_keys(:a)
+      expect(Hstore.where.store(store).keys(:a)).to_not exist
+    end
+
     it "#delete_keys" do
       subject.delete_keys(:i)
       expect(Hstore.where.store(store).keys(:i)).to_not exist

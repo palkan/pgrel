@@ -2,7 +2,7 @@ language: ruby
 cache: bundler
 
 addons:
-  postgresql: "9.4"
+  postgresql: "9.6"
 
 before_script:
   - createdb pgrel

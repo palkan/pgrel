@@ -207,4 +207,24 @@ describe Hstore do
       expect(Hstore.where.store(store, a: 2)).to exist
     end
   end
+
+  context "joins" do
+    before do
+      User.create!(name: "x", hstore: Hstore.find_by!(name: "a"))
+      User.create!(name: "y", hstore: Hstore.find_by!(name: "b"))
+      User.create!(name: "z", hstore: Hstore.find_by!(name: "c"))
+    end
+
+    it "works" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).key(:a))
+      expect(users.size).to eq 2
+      expect(users.map(&:name)).to match_array(["x", "y"])
+    end
+
+    it "works with #values" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).values(1))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["x"])
+    end
+  end
 end

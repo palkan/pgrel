@@ -70,4 +70,18 @@ describe ArrayStore do
       expect(ArrayStore.where.store(:tags).not.overlap('b', 2).size).to eq 1
     end
   end
+
+  context "joins" do
+    before do
+      User.create!(name: "x", array_store: ArrayStore.find_by!(name: "a"))
+      User.create!(name: "y", array_store: ArrayStore.find_by!(name: "b"))
+      User.create!(name: "z", array_store: ArrayStore.find_by!(name: "c"))
+    end
+
+    it "works" do
+      users = User.joins(:array_store).merge(ArrayStore.where.store(:tags).overlap(2))
+      expect(users.size).to eq 2
+      expect(users.map(&:name)).to match_array(["x", "y"])
+    end
+  end
 end

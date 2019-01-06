@@ -203,4 +203,30 @@ describe Jsonb do
       expect(Jsonb.where.store(store, d: { e: 2 })).to_not exist
     end
   end
+
+  context "joins" do
+    before do
+      User.create!(name: "x", jsonb: Jsonb.find_by!(name: "a"))
+      User.create!(name: "y", jsonb: Jsonb.find_by!(name: "b"))
+      User.create!(name: "z", jsonb: Jsonb.find_by!(name: "c"))
+    end
+
+    it "works" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).key(:a))
+      expect(users.size).to eq 2
+      expect(users.map(&:name)).to match_array(["y", "z"])
+    end
+
+    it "works with #path" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).path(:a, 2))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["z"])
+    end
+
+    it "works with #values" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).values(1))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["y"])
+    end
+  end
 end

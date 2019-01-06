@@ -6,10 +6,13 @@ module ActiveRecord
     # Provides _containment_ queries methods.
     # Provides basic methods.
     class StoreChain
+      attr_reader :store_name, :quoted_store_name
+
       def initialize(scope, store_name)
         @scope = scope
         @store_name = store_name
         @inverted = false
+        @quoted_store_name = "#{@scope.klass.quoted_table_name}.#{@scope.klass.connection.quote_column_name(store_name)}"
       end
 
       # Whether the store contains provided store
@@ -33,7 +36,7 @@ module ActiveRecord
       #   data = {b: 1, c: 2}
       #   Model.store(:store).contains(data).all #=> [Model(name: 'first', ...)]
       def contained(opts)
-        update_scope "#{@store_name} <@ #{type_cast(opts)}"
+        update_scope "#{quoted_store_name} <@ #{type_cast(opts)}"
       end
 
       # Add negation to condition.
@@ -135,7 +138,7 @@ module ActiveRecord
       private
 
       def contains_clause(opts)
-        "#{@store_name} @> #{type_cast(opts)}"
+        "#{quoted_store_name} @> #{type_cast(opts)}"
       end
 
       def build_or_contains(k, vals)
@@ -154,7 +157,7 @@ module ActiveRecord
       #   # Get all records which have key 'a' in store 'store'
       #   Model.store(:store).key('a').all #=> [Model(name: 'first', ...)]
       def key(key)
-        update_scope "#{@store_name} ? :key", key: key.to_s
+        update_scope "#{quoted_store_name} ? :key", key: key.to_s
       end
 
       # Several keys existence
@@ -166,7 +169,7 @@ module ActiveRecord
       #   Model.store(:store).keys('a','b').all #=> [Model(name: 'first', ...)]
       def keys(*keys)
         update_scope(
-          "#{@store_name} ?& ARRAY[:keys]",
+          "#{quoted_store_name} ?& ARRAY[:keys]",
           keys: keys.flatten.map(&:to_s)
         )
       end
@@ -180,7 +183,7 @@ module ActiveRecord
       #   Model.store(:store).keys('a','b').count #=> 2
       def any(*keys)
         update_scope(
-          "#{@store_name} ?| ARRAY[:keys]",
+          "#{quoted_store_name} ?| ARRAY[:keys]",
           keys: keys.flatten.map(&:to_s)
         )
       end

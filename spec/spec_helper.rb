@@ -40,4 +40,5 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.after(:each) { User.delete_all }
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ArrayStore do
-  before do
+  before(:all) do
     @connection = ActiveRecord::Base.connection
 
     @connection.transaction do
@@ -14,7 +14,9 @@ describe ArrayStore do
     ArrayStore.reset_column_information
   end
 
-  after do
+  after { ArrayStore.delete_all }
+
+  after(:all) do
     @connection.drop_table 'array_stores', if_exists: true
   end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Jsonb do
-  before do
+  before(:all) do
     @connection = ActiveRecord::Base.connection
 
     @connection.transaction do
@@ -14,7 +14,9 @@ describe Jsonb do
     Jsonb.reset_column_information
   end
 
-  after do
+  after { Jsonb.delete_all }
+
+  after(:all) do
     @connection.drop_table 'jsonbs', if_exists: true
   end
 

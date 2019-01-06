@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Hstore do
-  before do
+  before(:all) do
     @connection = ActiveRecord::Base.connection
 
     @connection.transaction do
@@ -14,7 +14,9 @@ describe Hstore do
     Hstore.reset_column_information
   end
 
-  after do
+  after { Hstore.delete_all }
+
+  after(:all) do
     @connection.drop_table 'hstores', if_exists: true
   end
 

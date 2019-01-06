@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Jsonb do
-  before do
+  before(:all) do
     @connection = ActiveRecord::Base.connection
 
     @connection.transaction do
@@ -14,7 +14,9 @@ describe Jsonb do
     Jsonb.reset_column_information
   end
 
-  after do
+  after { Jsonb.delete_all }
+
+  after(:all) do
     @connection.drop_table 'jsonbs', if_exists: true
   end
 
@@ -199,6 +201,32 @@ describe Jsonb do
       subject.delete_pairs(a: 1, d: { e: 2 })
       expect(Jsonb.where.store(store, a: 1)).to_not exist
       expect(Jsonb.where.store(store, d: { e: 2 })).to_not exist
+    end
+  end
+
+  context "joins" do
+    before do
+      User.create!(name: "x", jsonb: Jsonb.find_by!(name: "a"))
+      User.create!(name: "y", jsonb: Jsonb.find_by!(name: "b"))
+      User.create!(name: "z", jsonb: Jsonb.find_by!(name: "c"))
+    end
+
+    it "works" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).key(:a))
+      expect(users.size).to eq 2
+      expect(users.map(&:name)).to match_array(["y", "z"])
+    end
+
+    it "works with #path" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).path(:a, 2))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["z"])
+    end
+
+    it "works with #values" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).values(1))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["y"])
     end
   end
 end

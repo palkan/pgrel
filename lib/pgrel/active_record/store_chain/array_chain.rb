@@ -13,7 +13,7 @@ module ActiveRecord
       #   Model.store(:store).overlap('c').all #=> [Model(name: 'first', ...)]
       #   Model.store(:store).overlap(['b']).size #=> 2
       def overlap(*vals)
-        update_scope "#{@store_name} && #{type_cast(vals.flatten)}"
+        update_scope "#{quoted_store_name} && #{type_cast(vals.flatten)}"
       end
     end
   end

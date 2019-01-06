@@ -30,7 +30,7 @@ module ActiveRecord
           val = val.to_s
         end
 
-        where_with_prefix "#{@store_name}#{op}", path => val
+        where_with_prefix "#{quoted_store_name}#{op}", path => val
       end
 
       # Value existence
@@ -92,7 +92,7 @@ module ActiveRecord
       end
 
       def value_existence_query
-        "(SELECT array_agg(value) FROM jsonb_each(#{@store_name})) @> ARRAY[?]::jsonb[]"
+        "(SELECT array_agg(value) FROM jsonb_each(#{quoted_store_name})) @> ARRAY[?]::jsonb[]"
       end
     end
   end

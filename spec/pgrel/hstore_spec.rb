@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Hstore do
-  before do
+  before(:all) do
     @connection = ActiveRecord::Base.connection
 
     @connection.transaction do
@@ -14,7 +14,9 @@ describe Hstore do
     Hstore.reset_column_information
   end
 
-  after do
+  after { Hstore.delete_all }
+
+  after(:all) do
     @connection.drop_table 'hstores', if_exists: true
   end
 
@@ -203,6 +205,26 @@ describe Hstore do
       expect(Hstore.where.store(store, a: 1)).to_not exist
       expect(Hstore.where.store(store, f: false)).to exist
       expect(Hstore.where.store(store, a: 2)).to exist
+    end
+  end
+
+  context "joins" do
+    before do
+      User.create!(name: "x", hstore: Hstore.find_by!(name: "a"))
+      User.create!(name: "y", hstore: Hstore.find_by!(name: "b"))
+      User.create!(name: "z", hstore: Hstore.find_by!(name: "c"))
+    end
+
+    it "works" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).key(:a))
+      expect(users.size).to eq 2
+      expect(users.map(&:name)).to match_array(["x", "y"])
+    end
+
+    it "works with #values" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).values(1))
+      expect(users.size).to eq 1
+      expect(users.map(&:name)).to match_array(["x"])
     end
   end
 end

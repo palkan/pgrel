@@ -13,12 +13,7 @@ module ActiveRecord
       #   Model.store(:store).overlap_values(1, 2).all
       #   #=>[Model(name: 'first', ...), Model(name: 'second')]
       def overlap_values(*values)
-        query = String.new
-        values.length.times do |n|
-          query.concat("avals(#{quoted_store_name}) @> ARRAY[?]")
-          query.concat(' OR ') if n < values.length - 1
-        end
-        update_scope(query, *values.map(&:to_s))
+        update_scope("avals(#{quoted_store_name}) && ARRAY[?]", values.map(&:to_s))
       end
 
       # Contains values

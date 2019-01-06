@@ -58,7 +58,7 @@ Values existence:
 ```ruby
 # Retrieve items that have value '1' OR '2'
 Hstore.where.store(:tags).overlap_values(1, 2)
-#=> select * from hstores where (avals(tags) @> ARRAY['1'] OR avals(tags) @> ARRAY['2'] )
+#=> select * from hstores where (avals(tags) && ARRAY['1', '2'])
 
 # Retrieve items that have values '1' AND '2'
 Hstore.where.store(:tags).contains_values(1, 2)

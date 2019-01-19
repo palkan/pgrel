@@ -101,23 +101,23 @@ describe Hstore do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#value' do
-    records = Hstore.where.store(:tags).value(1, false, [1, 2, { a: 1 }])
+  it '#overlap_values' do
+    records = Hstore.where.store(:tags).overlap_values(1, false, [1, 2, { a: 1 }])
     expect(records.size).to eq 3
   end
 
-  it '#values' do
-    records = Hstore.where.store(:tags).values(1)
+  it '#contains_values' do
+    records = Hstore.where.store(:tags).contains_values(1)
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'a'
 
-    records = Hstore.where.store(:tags).values('2', 'b')
+    records = Hstore.where.store(:tags).contains_values('2', 'b')
     expect(records.size).to eq 2
 
-    records = Hstore.where.store(:tags).values(true)
+    records = Hstore.where.store(:tags).contains_values(true)
     expect(records.size).to eq 2
 
-    records = Hstore.where.store(:tags).values([1, 2, { a: 1 }], { a: 1, b: [1], f: false })
+    records = Hstore.where.store(:tags).contains_values([1, 2, { a: 1 }], { a: 1, b: [1], f: false })
     expect(records.size).to eq 1
   end
 

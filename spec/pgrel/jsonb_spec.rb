@@ -110,23 +110,23 @@ describe Jsonb do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#value' do
-    records = Jsonb.where.store(:tags).value(1, false, { e: 2 })
+  it '#overlap_values' do
+    records = Jsonb.where.store(:tags).overlap_values(1, false, { e: 2 })
     expect(records.size).to eq 3
   end
 
-  it '#values' do
-    records = Jsonb.where.store(:tags).values(1)
+  it '#contains_values' do
+    records = Jsonb.where.store(:tags).contains_values(1)
     expect(records.size).to eq 2
 
-    records = Jsonb.where.store(:tags).values(2, 'e')
+    records = Jsonb.where.store(:tags).contains_values(2, 'e')
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
 
-    records = Jsonb.where.store(:tags).values(e: 1, f: { h: { k: 'a', s: 2 } })
+    records = Jsonb.where.store(:tags).contains_values(e: 1, f: { h: { k: 'a', s: 2 } })
     expect(records.size).to eq 1
 
-    records = Jsonb.where.store(:tags).values(false, { a: 1, b: '1' }, [1, '1'])
+    records = Jsonb.where.store(:tags).contains_values(false, { a: 1, b: '1' }, [1, '1'])
     expect(records.size).to eq 1
   end
 

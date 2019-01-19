@@ -33,15 +33,15 @@ module ActiveRecord
         where_with_prefix "#{quoted_store_name}#{op}", path => val
       end
 
-      # Value existence
+      # Overlap values
       #
       # Example
       #   Model.create!(name: 'first', store: {a: 1, b: 2})
       #   Model.create!(name: 'second', store: {b: 1, c: 3})
       #
-      #   Model.store(:store).values(1, 2).all
+      #   Model.store(:store).overlap_values(1, 2).all
       #   #=>[Model(name: 'first', ...), Model(name: 'second')]
-      def value(*values)
+      def overlap_values(*values)
         query = String.new
         values = values.map do |v|
           case v
@@ -59,14 +59,14 @@ module ActiveRecord
         update_scope(query, *values)
       end
 
-      # Values existence
+      # Contains values
       #
       # Example
       #   Model.create!(name: 'first', store: {a: 1, b: 2})
       #   Model.create!(name: 'second', store: {b: 1, c: 3})
       #
-      #   Model.store(:store).values(1, 2).all #=> [Model(name: 'first', ...)]
-      def values(*values)
+      #   Model.store(:store).contains_values(1, 2).all #=> [Model(name: 'first', ...)]
+      def contains_values(*values)
         values = values.map do |v|
           case v
           when Hash, Array, String

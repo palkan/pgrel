@@ -230,8 +230,8 @@ describe Jsonb do
       expect(users.map(&:name)).to match_array(["z"])
     end
 
-    it "works with #values" do
-      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).values(1))
+    it "works with #contains_values" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).contains_values(1))
       expect(users.size).to eq 1
       expect(users.map(&:name)).to match_array(["y"])
     end

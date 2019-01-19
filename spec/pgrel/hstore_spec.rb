@@ -228,8 +228,8 @@ describe Hstore do
       expect(users.map(&:name)).to match_array(["x", "y"])
     end
 
-    it "works with #values" do
-      users = User.joins(:hstore).merge(Hstore.where.store(:tags).values(1))
+    it "works with #contains_values" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).contains_values(1))
       expect(users.size).to eq 1
       expect(users.map(&:name)).to match_array(["x"])
     end

@@ -101,9 +101,16 @@ describe Hstore do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#overlap_values' do
-    records = Hstore.where.store(:tags).overlap_values(1, false, [1, 2, { a: 1 }])
-    expect(records.size).to eq 3
+  describe '#overlap_values' do
+    let(:records) { Hstore.where.store(:tags).overlap_values(1, false, [1, 2, { a: 1 }]) }
+
+    it 'returns records with overlapping values' do
+      expect(records.size).to eq 3
+    end
+
+    it 'calls avals function only once' do
+      expect(records.to_sql.scan(/avals/).count).to eq 1
+    end
   end
 
   it '#contains_values' do

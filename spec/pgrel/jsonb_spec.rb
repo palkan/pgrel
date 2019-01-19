@@ -110,9 +110,16 @@ describe Jsonb do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#overlap_values' do
-    records = Jsonb.where.store(:tags).overlap_values(1, false, { e: 2 })
-    expect(records.size).to eq 3
+  describe '#overlap_values' do
+    let(:records) { Jsonb.where.store(:tags).overlap_values(1, false, { e: 2 }) }
+
+    it 'returns records with overlapping values' do
+      expect(records.size).to eq 3
+    end
+
+    it 'calls array_agg function only once' do
+      expect(records.to_sql.scan(/array_agg/).count).to eq 1
+    end
   end
 
   it '#contains_values' do

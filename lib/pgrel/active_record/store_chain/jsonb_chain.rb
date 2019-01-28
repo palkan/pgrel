@@ -4,6 +4,8 @@ module ActiveRecord
   module QueryMethods
     # Store chain for jsonb columns.
     class JsonbChain < KeyStoreChain
+      OPERATORS = { contains: '@>', overlap: '&&' }.freeze
+
       # Query by value in path.
       #
       # Example:
@@ -33,49 +35,27 @@ module ActiveRecord
         where_with_prefix "#{quoted_store_name}#{op}", path => val
       end
 
-      # Value existence
+      # Overlap values
       #
       # Example
       #   Model.create!(name: 'first', store: {a: 1, b: 2})
       #   Model.create!(name: 'second', store: {b: 1, c: 3})
       #
-      #   Model.store(:store).values(1, 2).all
+      #   Model.store(:store).overlap_values(1, 2).all
       #   #=>[Model(name: 'first', ...), Model(name: 'second')]
-      def value(*values)
-        query = String.new
-        values = values.map do |v|
-          case v
-          when Hash, Array, String
-            v.to_json
-          else
-            v.to_s
-          end
-        end
-
-        values.length.times do |n|
-          query.concat(value_existence_query)
-          query.concat(' OR ') if n < values.length - 1
-        end
-        update_scope(query, *values)
+      def overlap_values(*values)
+        update_scope(value_query(:overlap), cast_values(values))
       end
 
-      # Values existence
+      # Contains values
       #
       # Example
       #   Model.create!(name: 'first', store: {a: 1, b: 2})
       #   Model.create!(name: 'second', store: {b: 1, c: 3})
       #
-      #   Model.store(:store).values(1, 2).all #=> [Model(name: 'first', ...)]
-      def values(*values)
-        values = values.map do |v|
-          case v
-          when Hash, Array, String
-            v.to_json
-          else
-            v.to_s
-          end
-        end
-        update_scope(value_existence_query, values)
+      #   Model.store(:store).contains_values(1, 2).all #=> [Model(name: 'first', ...)]
+      def contains_values(*values)
+        update_scope(value_query(:contains), cast_values(values))
       end
 
       private
@@ -91,8 +71,20 @@ module ActiveRecord
         end
       end
 
-      def value_existence_query
-        "(SELECT array_agg(value) FROM jsonb_each(#{quoted_store_name})) @> ARRAY[?]::jsonb[]"
+      def value_query(operator)
+        oper = OPERATORS[operator]
+        "(SELECT array_agg(value) FROM jsonb_each(#{quoted_store_name})) #{oper} ARRAY[?]::jsonb[]"
+      end
+
+      def cast_values(values)
+        values.map do |v|
+          case v
+          when Hash, Array, String
+            v.to_json
+          else
+            v.to_s
+          end
+        end
       end
     end
   end

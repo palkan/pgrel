@@ -110,23 +110,30 @@ describe Jsonb do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#value' do
-    records = Jsonb.where.store(:tags).value(1, false, { e: 2 })
-    expect(records.size).to eq 3
+  describe '#overlap_values' do
+    let(:records) { Jsonb.where.store(:tags).overlap_values(1, false, { e: 2 }) }
+
+    it 'returns records with overlapping values' do
+      expect(records.size).to eq 3
+    end
+
+    it 'calls array_agg function only once' do
+      expect(records.to_sql.scan(/array_agg/).count).to eq 1
+    end
   end
 
-  it '#values' do
-    records = Jsonb.where.store(:tags).values(1)
+  it '#contains_values' do
+    records = Jsonb.where.store(:tags).contains_values(1)
     expect(records.size).to eq 2
 
-    records = Jsonb.where.store(:tags).values(2, 'e')
+    records = Jsonb.where.store(:tags).contains_values(2, 'e')
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'e'
 
-    records = Jsonb.where.store(:tags).values(e: 1, f: { h: { k: 'a', s: 2 } })
+    records = Jsonb.where.store(:tags).contains_values(e: 1, f: { h: { k: 'a', s: 2 } })
     expect(records.size).to eq 1
 
-    records = Jsonb.where.store(:tags).values(false, { a: 1, b: '1' }, [1, '1'])
+    records = Jsonb.where.store(:tags).contains_values(false, { a: 1, b: '1' }, [1, '1'])
     expect(records.size).to eq 1
   end
 
@@ -223,8 +230,8 @@ describe Jsonb do
       expect(users.map(&:name)).to match_array(["z"])
     end
 
-    it "works with #values" do
-      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).values(1))
+    it "works with #contains_values" do
+      users = User.joins(:jsonb).merge(Jsonb.where.store(:tags).contains_values(1))
       expect(users.size).to eq 1
       expect(users.map(&:name)).to match_array(["y"])
     end

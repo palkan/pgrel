@@ -101,23 +101,30 @@ describe Hstore do
     expect(records.first.name).to eq 'e'
   end
 
-  it '#value' do
-    records = Hstore.where.store(:tags).value(1, false, [1, 2, { a: 1 }])
-    expect(records.size).to eq 3
+  describe '#overlap_values' do
+    let(:records) { Hstore.where.store(:tags).overlap_values(1, false, [1, 2, { a: 1 }]) }
+
+    it 'returns records with overlapping values' do
+      expect(records.size).to eq 3
+    end
+
+    it 'calls avals function only once' do
+      expect(records.to_sql.scan(/avals/).count).to eq 1
+    end
   end
 
-  it '#values' do
-    records = Hstore.where.store(:tags).values(1)
+  it '#contains_values' do
+    records = Hstore.where.store(:tags).contains_values(1)
     expect(records.size).to eq 1
     expect(records.first.name).to eq 'a'
 
-    records = Hstore.where.store(:tags).values('2', 'b')
+    records = Hstore.where.store(:tags).contains_values('2', 'b')
     expect(records.size).to eq 2
 
-    records = Hstore.where.store(:tags).values(true)
+    records = Hstore.where.store(:tags).contains_values(true)
     expect(records.size).to eq 2
 
-    records = Hstore.where.store(:tags).values([1, 2, { a: 1 }], { a: 1, b: [1], f: false })
+    records = Hstore.where.store(:tags).contains_values([1, 2, { a: 1 }], { a: 1, b: [1], f: false })
     expect(records.size).to eq 1
   end
 
@@ -221,8 +228,8 @@ describe Hstore do
       expect(users.map(&:name)).to match_array(["x", "y"])
     end
 
-    it "works with #values" do
-      users = User.joins(:hstore).merge(Hstore.where.store(:tags).values(1))
+    it "works with #contains_values" do
+      users = User.joins(:hstore).merge(Hstore.where.store(:tags).contains_values(1))
       expect(users.size).to eq 1
       expect(users.map(&:name)).to match_array(["x"])
     end

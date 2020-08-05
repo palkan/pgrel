@@ -11,7 +11,7 @@ Compatible with **Rails** >= 4.2 (including **Rails 6**).
 In your Gemfile:
 
 ```ruby
-gem "pgrel", "~> 0.2"
+gem "pgrel", "~> 0.3"
 ```
 
 ### HStore

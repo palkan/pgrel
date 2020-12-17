@@ -225,8 +225,6 @@ module ActiveRecord
         end
       end
 
-      private
-
       def build_where_clause(opts)
         if ActiveRecord.version.release >= Gem::Version.new("6.1.0")
           @scope.send(:build_where_clause, opts)

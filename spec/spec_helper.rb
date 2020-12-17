@@ -1,23 +1,32 @@
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-$LOAD_PATH.unshift(File.dirname(__FILE__))
+# frozen_string_literal: true
 
-if ENV['COVER']
-  require 'simplecov'
-  SimpleCov.root File.join(File.dirname(__FILE__), '..')
-  SimpleCov.start
+begin
+  require "pry-byebug"
+rescue LoadError
 end
 
 require 'rspec'
-require 'pry-byebug'
 require 'active_record'
 require 'pg'
 require 'pgrel'
 
+connection_params =
+  if ENV.key?("DATABASE_URL")
+    {"url" => ENV["DATABASE_URL"]}
+  else
+    {
+      "host" => ENV["DB_HOST"] || "localhost",
+      "username" => ENV["DB_USER"]
+    }
+  end
+
 ActiveRecord::Base.establish_connection(
-  adapter: 'postgresql',
-  host: 'localhost',
-  database: 'pgrel'
+  {
+    "adapter" => "postgresql",
+    "database" => "pgrel_test"
+  }.merge(connection_params)
 )
+
 connection = ActiveRecord::Base.connection
 
 unless connection.extension_enabled?('hstore')

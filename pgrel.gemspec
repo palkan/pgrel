@@ -1,7 +1,7 @@
-$:.push File.expand_path("../lib", __FILE__)
+# frozen_string_literal: true
 
 # Maintain your gem's version:
-require "pgrel/version"
+require_relative "lib/pgrel/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
@@ -14,14 +14,12 @@ Gem::Specification.new do |s|
   s.description = "ActiveRecord extension for querying hstore and jsonb."
   s.license     = "MIT"
 
-  s.files         = `git ls-files`.split($/)
+  s.files         = Dir.glob("lib/**/*") + %w[README.md LICENSE.txt CHANGELOG.md]
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency "activerecord", ">= 4.0"
 
-  s.add_development_dependency "pg", "~>0.18"
-  s.add_development_dependency 'rake', '~> 10.1'
-  s.add_development_dependency "simplecov", ">= 0.3.8"
-  s.add_development_dependency 'pry-byebug'
+  s.add_development_dependency "pg", ">= 0.18"
+  s.add_development_dependency 'rake', '>= 10.1'
   s.add_development_dependency "rspec", ">= 3.1"
 end

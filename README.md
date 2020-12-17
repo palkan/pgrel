@@ -1,4 +1,5 @@
-[![Gem Version](https://badge.fury.io/rb/pgrel.svg)](https://rubygems.org/gems/pgrel) [![Build Status](https://travis-ci.org/palkan/pgrel.svg?branch=master)](https://travis-ci.org/palkan/pgrel)
+[![Gem Version](https://badge.fury.io/rb/pgrel.svg)](https://rubygems.org/gems/pgrel)
+![Build](https://github.com/palkan/pgrel/workflows/Build/badge.svg)
 
 ## Pgrel
 
@@ -18,7 +19,7 @@ gem "pgrel", "~> 0.3"
 
 #### Querying
 
-The functionality is based on ActiveRecord `WhereChain`. 
+The functionality is based on ActiveRecord `WhereChain`.
 To start querying call `where(:store_name)` and chain it with store-specific call (see below).
 
 Query by key value:
@@ -103,7 +104,7 @@ Hstore.update_store(:tags).delete_pairs(a: 1, b: 2)
 
 All queries and updates for Hstore also available for JSONB.
 
-**NOTE**. Querying by array value always resolves to `(... or ...)` statement. 
+**NOTE**. Querying by array value always resolves to `(... or ...)` statement.
 Thus it's impossible to query json array value, e.g.:
 
 ```ruby

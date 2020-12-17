@@ -144,6 +144,14 @@ module ActiveRecord
       def build_or_contains(k, vals)
         vals.map { |v| contains_clause(k => v) }.join(' or ')
       end
+
+      def build_where_clause(opts)
+        if ActiveRecord.version.release >= Gem::Version.new("6.1.0")
+          @scope.send(:build_where_clause, opts)
+        else
+          @scope.send(:where_clause_factory).build(opts, [])
+        end
+      end
     end
 
     # Base class for key-value types of stores (hstore, jsonb)
@@ -222,14 +230,6 @@ module ActiveRecord
           end
           @scope.where_values += where_value
           @scope
-        end
-      end
-
-      def build_where_clause(opts)
-        if ActiveRecord.version.release >= Gem::Version.new("6.1.0")
-          @scope.send(:build_where_clause, opts)
-        else
-          @scope.send(:where_clause_factory).build(opts, [])
         end
       end
     end

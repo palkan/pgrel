@@ -93,7 +93,7 @@ module ActiveRecord
         protected
 
         def update_scope(*opts)
-          where_clause = @scope.send(:where_clause_factory).build(opts, {})
+          where_clause = build_where_clause(opts)
           @scope.where_clause += @inverted ? where_clause.invert : where_clause
           @scope
         end
@@ -198,7 +198,7 @@ module ActiveRecord
 
       if ActiveRecord.version.release >= Gem::Version.new("5")
         def where_with_prefix(prefix, opts)
-          where_clause = @scope.send(:where_clause_factory).build(opts, [])
+          where_clause = build_where_clause(opts)
           predicates = where_clause.ast.children.map do |rel|
             rel.left = to_sql_literal(prefix, rel.left)
             rel
@@ -222,6 +222,16 @@ module ActiveRecord
           end
           @scope.where_values += where_value
           @scope
+        end
+      end
+
+      private
+
+      def build_where_clause(opts)
+        if ActiveRecord.version.release >= Gem::Version.new("6.1.0")
+          @scope.send(:build_where_clause, opts)
+        else
+          @scope.send(:where_clause_factory).build(opts, [])
         end
       end
     end

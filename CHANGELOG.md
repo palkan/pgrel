@@ -2,6 +2,8 @@
 
 ## master
 
+- Update internal query building for Rails 6.1 compatibility. ([@zokioki][])
+
 ## 0.3.0 (2019-28-01)
 
 - Rename `#value` method to `#overlap_values`.

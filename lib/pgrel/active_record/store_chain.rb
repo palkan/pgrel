@@ -207,10 +207,17 @@ module ActiveRecord
       if ActiveRecord.version.release >= Gem::Version.new("5")
         def where_with_prefix(prefix, opts)
           where_clause = build_where_clause(opts)
-          predicates = where_clause.ast.children.map do |rel|
-            rel.left = to_sql_literal(prefix, rel.left)
-            rel
-          end
+          where_clause_ast = where_clause.ast
+
+          predicates = if where_clause_ast.is_a?(Arel::Nodes::And)
+                         where_clause.ast.children.map do |rel|
+                           rel.left = to_sql_literal(prefix, rel.left)
+                           rel
+                         end
+                       else
+                         where_clause_ast.left = to_sql_literal(prefix, where_clause_ast.left)
+                         [where_clause_ast]
+                       end
 
           params = if ActiveRecord.version.release >= Gem::Version.new("5.2.0")
                      [predicates]

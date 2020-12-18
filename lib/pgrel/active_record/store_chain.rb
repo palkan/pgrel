@@ -211,7 +211,7 @@ module ActiveRecord
 
           # Converting `HomogenousIn` node to `In` type allows us to set its `left`
           # to sql literal as with other node types (`HomogenousIn` does not support this).
-          if where_clause_ast.is_a?(Arel::Nodes::HomogeneousIn)
+          if defined?(Arel::Nodes::HomogeneousIn) && where_clause_ast.is_a?(Arel::Nodes::HomogeneousIn)
             where_clause_ast = Arel::Nodes::In.new(where_clause_ast.left, where_clause_ast.right)
           end
 

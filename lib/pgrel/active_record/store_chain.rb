@@ -83,15 +83,15 @@ module ActiveRecord
               else
                 contains_clause(k => v)
               end
-            end.join(' and ')
-          end.join(' or ')
+            end.join(" and ")
+          end.join(" or ")
         )
         @scope
       end
 
-      if ActiveRecord.version.release >= Gem::Version.new("5")
-        protected
+      protected
 
+      if ActiveRecord.version.release >= Gem::Version.new("5")
         def update_scope(*opts)
           where_clause = build_where_clause(opts)
           @scope.where_clause += @inverted ? where_clause.invert : where_clause
@@ -104,8 +104,6 @@ module ActiveRecord
           )
         end
       else
-        protected
-
         def update_scope(*opts)
           where_clause = @scope.send(:build_where, opts).map do |rel|
             @inverted ? invert_arel(rel) : rel
@@ -142,7 +140,7 @@ module ActiveRecord
       end
 
       def build_or_contains(k, vals)
-        vals.map { |v| contains_clause(k => v) }.join(' or ')
+        vals.map { |v| contains_clause(k => v) }.join(" or ")
       end
 
       def build_where_clause(opts)
@@ -216,20 +214,20 @@ module ActiveRecord
           end
 
           predicates = if where_clause_ast.is_a?(Arel::Nodes::And)
-                         where_clause.ast.children.map do |rel|
-                           rel.left = to_sql_literal(prefix, rel.left)
-                           rel
-                         end
-                       else
-                         where_clause_ast.left = to_sql_literal(prefix, where_clause_ast.left)
-                         [where_clause_ast]
-                       end
+            where_clause.ast.children.map do |rel|
+              rel.left = to_sql_literal(prefix, rel.left)
+              rel
+            end
+          else
+            where_clause_ast.left = to_sql_literal(prefix, where_clause_ast.left)
+            [where_clause_ast]
+          end
 
           params = if ActiveRecord.version.release >= Gem::Version.new("5.2.0")
-                     [predicates]
-                   else
-                     [predicates, where_clause.binds]
-                   end
+            [predicates]
+          else
+            [predicates, where_clause.binds]
+          end
 
           where_clause = ActiveRecord::Relation::WhereClause.new(*params)
           @scope.where_clause += @inverted ? where_clause.invert : where_clause

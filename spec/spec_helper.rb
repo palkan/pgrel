@@ -5,10 +5,10 @@ begin
 rescue LoadError
 end
 
-require 'rspec'
-require 'active_record'
-require 'pg'
-require 'pgrel'
+require "rspec"
+require "active_record"
+require "pg"
+require "pgrel"
 
 connection_params =
   if ENV.key?("DATABASE_URL")
@@ -29,17 +29,17 @@ ActiveRecord::Base.establish_connection(
 
 connection = ActiveRecord::Base.connection
 
-unless connection.extension_enabled?('hstore')
-  connection.enable_extension 'hstore'
+unless connection.extension_enabled?("hstore")
+  connection.enable_extension "hstore"
   connection.commit_db_transaction
 end
 
 connection.reconnect!
 
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
 
 RSpec.configure do |config|
-  config.example_status_persistence_file_path = '.rspec_status'
+  config.example_status_persistence_file_path = ".rspec_status"
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
 

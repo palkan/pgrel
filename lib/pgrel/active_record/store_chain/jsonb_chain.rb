@@ -4,7 +4,7 @@ module ActiveRecord
   module QueryMethods
     # Store chain for jsonb columns.
     class JsonbChain < KeyStoreChain
-      OPERATORS = { contains: '@>', overlap: '&&' }.freeze
+      OPERATORS = {contains: "@>", overlap: "&&"}.freeze
 
       # Query by value in path.
       #
@@ -18,17 +18,17 @@ module ActiveRecord
         args = flatten_hash(args.first) if args.size == 1
         val = args.pop
 
-        path = "{#{args.join(',')}}"
+        path = "{#{args.join(",")}}"
 
         case val
         when Hash
-          op = '#>'
+          op = "#>"
           val = ::ActiveSupport::JSON.encode(val)
         when Array
-          op = '#>>'
+          op = "#>>"
           val = val.map(&:to_s)
         else
-          op = '#>>'
+          op = "#>>"
           val = val.to_s
         end
 

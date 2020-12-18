@@ -209,6 +209,12 @@ module ActiveRecord
           where_clause = build_where_clause(opts)
           where_clause_ast = where_clause.ast
 
+          # Converting `HomogenousIn` node to `In` type allows us to set its `left`
+          # to sql literal as with other node types (`HomogenousIn` does not support this).
+          if where_clause_ast.is_a?(Arel::Nodes::HomogeneousIn)
+            where_clause_ast = Arel::Nodes::In.new(where_clause_ast.left, where_clause_ast.right)
+          end
+
           predicates = if where_clause_ast.is_a?(Arel::Nodes::And)
                          where_clause.ast.children.map do |rel|
                            rel.left = to_sql_literal(prefix, rel.left)

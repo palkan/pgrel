@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.3.1 (2020-12-18)
+
 - Update internal query building for Rails 6.1 compatibility. ([@zokioki][])
 
 ## 0.3.0 (2019-28-01)
